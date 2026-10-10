@@ -12,7 +12,8 @@ const HOST = url.hostname;
 
 //Functions to calculate API response
 
-function calculateAngle(hours: number, minutes: number): string {
+// Now added 
+export function calculateAngle(hours: number, minutes: number): string {
     if (Number.isNaN(hours) || Number.isNaN(minutes)) {
         throw new Error("Hour and minute must be valid numbers.");
     }
@@ -24,25 +25,24 @@ function calculateAngle(hours: number, minutes: number): string {
     if (minutes < 0 || minutes > 59) {
         throw new Error("Minute must be between 0 and 59.");
     }
-    // This uses the clock angle formula, which I looked up.
-    // It accounts for times like 5:32 instead of just clean times like 12:00,
-    // as indicated in the take-home assignment.
-    const hourHand = (hours % 12) * 30;
-    const minuteHand = minutes * 5.5;
+    
+    //Corrected formula based on feed back from reviewers.
 
-    const angle = Math.abs(hourHand - minuteHand);
+    const hourHandAngle = (hours % 12) * 30 + minutes * 0.5;
+    const minuteHandAngle = minutes * 6;
+    const angle = hourHandAngle + minuteHandAngle;
 
     return `${angle}°`;
 }
 
-function calcTimeAngleFromHoursMins(hour: string, min: string): string {
+export function calcTimeAngleFromHoursMins(hour: string, min: string): string {
     const hours = Number(hour);
     const minutes = Number(min);
 
     return calculateAngle(hours, minutes);
 }
 
-function calcTimeAngleFromTime(time: string): string {
+export function calcTimeAngleFromTime(time: string): string {
     const parts = time.split(":");
 
     if (parts.length !== 2) {
@@ -59,23 +59,23 @@ function calcTimeAngleFromTime(time: string): string {
 
 // HTTP section
 app.post('/CalculateTimeAngle', (req, res) => {
+    // converted my origianal switch structure to account for more input validation
     try {
-        const { time, hour, minute } = req.body;
+        const { time, hour, minute } = req.body ?? {};
 
-        switch (true) {
-            case time !== undefined:
-                res.send(calcTimeAngleFromTime(time));
-                break;
-
-            case hour !== undefined && minute !== undefined:
-                res.send(calcTimeAngleFromHoursMins(hour, minute));
-                break;
-
-            default:
-                res.status(400).send(
-                    'Incorrect format. Expected time: "03:00" or hour and minute: 5, 30.'
-                );
+        if (time !== undefined) {
+            res.send(calcTimeAngleFromTime(time));
+            return;
         }
+
+        if (hour !== undefined && minute !== undefined) {
+            res.send(calcTimeAngleFromHoursMins(hour, minute));
+            return;
+        }
+
+        res.status(400).send(
+            'Incorrect format. Expected time: "03:00" or hour and minute: 5, 30.'
+        );
     } catch (error) {
         if (error instanceof Error) {
             res.status(400).send(error.message);

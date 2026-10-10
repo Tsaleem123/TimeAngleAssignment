@@ -3,6 +3,12 @@ Take-home assignment for Shipcom.
 Created using TypeScript / Express.js and Jest.
 Provides a post end point for converting time and or hours/minutes input to an angle on a clock.
 
+#10/10/26 CORRECTIONS ADDED:
+
+- Fixed the calculation logic based on the corrections provided by the developers in their review.
+- Restructured the switch statement to improve input validation, as suggested in the feedback.
+- Added unit tests for the individual functions instead of relying solely on integration tests for the POST endpoint. These tests are intended to provide greater confidence in the correctness of the code.
+
 Steps to run this locally:
 
 1. Clone the repository
